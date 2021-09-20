@@ -1,0 +1,48 @@
+__Film title contains the word Uptown in any position:__
+SELECT film_id,
+       title,
+       description
+FROM film
+WHERE title LIKE '%Uptown';
+
+__Film length is more than 120 minutes and rental rate is more than 2.99:__
+SELECT film_id,
+       title,
+       description
+FROM film
+WHERE length > 120 AND rental_rate > 2.99;
+
+__Rental duration is between 3 and 7 days (where 3 and 7 aren’t inclusive):__
+SELECT film_id,
+       title,
+       description
+FROM film
+WHERE rental_duration BETWEEN 3 AND 7;
+
+__Film replacement cost is less than 14.99:__
+SELECT film_id,
+       title, 
+       description
+FROM film
+WHERE replacement_cost < 14.99;
+
+__Film rating is either PG or G:__
+SELECT film_id
+       title, 
+       description
+FROM film
+WHERE rating IN ('PG' , 'G');
+
+__Count of the movies, Average rental rate, Maximum rental duration and minimum rental duration:__
+SELECT 
+      COUNT(rating) AS count_of_movies,
+      AVG(rental_duration) AS average_movie_rental_rate, 
+      MAX(rental_duration) AS maximum_rental_duration
+FROM film
+WHERE rating IN ('PG' , 'G');
+
+
+
+
+
+
