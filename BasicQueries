@@ -1,0 +1,35 @@
+__Find outwhat film genres already exists in the category table:__
+SELECT category_id, name AS movie_genre
+FROM category;
+
+__Write an INSERT statement to add the following genres to the category table: Thriller, Crime, Mystery, Romance, and War__
+INSERT INTO category
+(category_id, name, last_update)
+VALUES (17, 'Thriller', now()),
+       (18, 'Crime', now()),
+       (19, 'Mystery', now()),
+       (20, 'Romance', now()),
+       (21, 'War', now())
+;
+
+__ Since there aren't many movies in the Mystery category, I decided to remove it from the category table:__
+DELET FROM category
+WHERE category_id = 19;
+
+__The average rental rate for each rating category:__
+SELECT rating,
+       AVG(rental_rate) AS average_rentale_rate
+FROM film
+GROUP BY rating
+ORDER BY rating DESC;
+
+__•	The minimum and maximum rental durations for each rating category:__
+SELECT rating, 
+       MIN(rental_duration) AS minimum_rental_duration,
+       MAX(rental_duration) AS maximum_rental_duration
+FROM film
+GROUP BY rating;
+
+
+
+
