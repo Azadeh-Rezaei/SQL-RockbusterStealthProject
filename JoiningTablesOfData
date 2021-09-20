@@ -1,0 +1,51 @@
+__Using join quries to join tables and answer some of the business questions:__
+__Find the top 10 countries for Rockbuster in terms of customer numbers__
+SELECT d.country,
+       COUNT(a.customer_id) AS total_count
+FROM customer A
+LEFT JOIN address B
+     ON a.address_id = b.address_id
+RIGHT JOIN city C
+     ON b.city_id = c.city_id
+RIGHT JOIN country D
+     ON c.country_id = d.country_id
+GROUP BY d.country
+ORDER BY total_count DESC
+LIMIT 10;
+
+__Find the top 10 cities within the top 10 countries identified in the previous step__
+SELECT c.city AS top_cities, d.country AS country,
+       COUNT(a.customer_id) AS total_count
+FROM customer A
+LEFT JOIN address B
+     ON a.address_id = b.address_id
+RIGHT JOIN country D
+     ON c.country_id = d.country_id
+WHERE d.country IN
+     ('India', 'China', 'United States', 'Japan' , 'Mexico', 'Brazil', 'Russian Federation', 'Philippines', 'Turkey', 'Indonesia')
+GROUP BY c.city, d.country
+ORDER BY total_count DESC
+LIMIT 10;
+
+__Find the top 5 customers in the top 10 cities who have paid the highest total amounts to Rockbuster. The customer team would like to reward them for their loyalty!__
+SELECT a.customer_id AS customer_id,
+       a.first_name AS customer_first_name,
+       a.last_name AS customer_last_name,
+       c.city AS city_name,
+       d.country AS country_name,
+       SUM(p.amount) AS total_payment
+FROM payment P
+LEFT JOIN customer A
+      ON p.customer_id = a.customer_id
+JOIN address B
+      ON a.address_id = b.city_id
+JOIN city C
+      ON b.city_id = c.city_id
+JOIN country D
+      ON c.country_id = d.country_id
+WHERE c.city IN
+      ('Aurora', 'Atlixco', 'Xintai', 'Adoni', 'Dhule', 'Kurashiki', 'Pingxian', 'Sivas', 'Celaya', 'So Leopoldo')
+GROUP BY a.customer_id, a.first_name, a.last_name, c.city, d.country
+ORDER BY total_payment DESC
+LIMIT 5;
+
