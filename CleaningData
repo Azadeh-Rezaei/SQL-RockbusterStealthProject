@@ -1,0 +1,79 @@
+__Check for and clean dirty data in Film Table:__
+__Duplicate values in the Film table__
+SELECT film_id,
+       title,
+       description,
+       release_year,
+       language_id,
+       COUNT(*)
+FROM film
+GROUP BY film_id,
+         title,
+         description,
+         release_year,
+         language_id
+HAVING COUNT(*) > 1;
+
+__Non-uniform Values in Film table__
+SELECT DISTINCT film_id,
+                title
+FROM film,
+GROUP BY film_id,
+         title;
+         
+__Missing Values in Film table__
+SELECT COUNT(film_id),
+       COUNT(title),
+       COUNT(release_year),
+       COUNT(language_id),
+       COUNT(rental_duration),
+       COUNT(rental_rate),
+       COUNT(length),
+       COUNT(replacement_cost),
+       COUNT(rating)
+FROM film;
+
+
+
+__Check for and clean dirty data in Customer Table:__
+__Duplicate value search did not result in any duplicates in the customer table__
+SELECT customer_id,
+       store_id,
+       first_name,
+       last_name,
+       email,
+       address_id,
+       activebool,
+       create_date,
+       last_update, 
+       active
+HAVING COUNT(*) > 1;
+
+__Non-uniform Values in Customer table__
+SELECT DISTINCT store_id
+FROM customer;
+
+SELECT DISTINCT customer_id
+FROM customer;
+
+__This query returns the same number of customer information as the number of customer IDs and there doesn’t seem to be any non-uniform records__
+SELECT first_name,
+       last_name,
+       email,
+       address_id,
+       active
+FROM customer;
+
+__Missing values in Customer table:__
+SELECT COUNT(customer_id),
+       COUNT(first_name),
+       COUNT(last_name),
+       COUNT(email),
+       COUND(address_id),
+       COUNT(active)
+ FROM customer;
+ 
+ 
+ 
+ 
+
