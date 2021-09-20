@@ -1,0 +1,60 @@
+__Find the average amount paid by the top 5 customers:__
+
+SELECT AVG(total_amount_paid.total_payment) AS average_top5_payments
+FROM
+    (SELECT a.customer_id AS customer_id,
+            a.first_name AS customer_first_name,
+            a.last_name AS customer_last_name,
+            c.city AS city_nam,
+            d.country AS country_name,
+            SUM(p.amount) AS total_paymeny
+     FROM payment P
+     LEFT JOIN customer A
+           ON p.customer_id = a.customer_id
+     JOIN address B
+           ON a.address_id = b.address_id
+     JOIN city C
+           ON b.city_id = c.city_id
+     JOIN country D
+           ON c.country_id = d.country_id
+     WHERE c.city IN
+           ('Aurora', 'Atlixco', 'Xintai', 'Adoni', 'Dhule', 'Kurashiki', 'Pingxiang', 'Sivas', 'Celaya', 'So Leopoldo')
+     GROUP BY a.customer_id, a.first_name, a.last_name, c.city, d.country
+     ORDER BY total_payment DESC
+     LIMIT 5) AS total_amount_paid;
+     
+     
+__Find out how many of the top 5 customers are based within each country:__
+
+SELECT d.country AS country_name, 
+       COUNT(DISTINCT(a.customer_id)) AS customer_count,
+       COUNT(DISTINCT(top_5_customer.customer_id)) AS top_customer_count
+FROM customer AS a
+INNER JOIN address b ON a.address_id = b.address_id
+INNER JOIN city c ON b.city_id = c.city_id
+INNER JOIN country d ON c.country_id = d.country_id
+LEFT JOIN (SELECT a.customer_id AS customer_id,
+                  a.first_name AS customer_first_name,
+                  a.last_name AS customer_last_name,
+                  c.city AS city_name,
+                  d.country AS country_name,
+                  SUM(p.amount) AS total_payment
+           FROM payment P
+           LEFT JOIN customer A
+                  ON p.customer_id = a.customer_id
+           JOIN address B
+                  ON a.address_id = b.address_id
+           JOIN city C
+                  ON b.city_id = c.city_id
+           JOIN country D
+                  ON c.country_id = d.country_id
+           WHERE c.city IN
+                  ('Aurora', 'Atlixco', 'Xintai', 'Adoni', 'Dhule', 'Kurashiki', 'Pingxiang', 'Sivas', 'Celaya', 'So Leopoldo')
+           GROUP BY a.customer_id, a.first_name, a.last_name, c.city, d.country
+           ORDER BY total_payment DESC
+           LIMIT 5) AS top_5_customers
+           ON d.country = top_5_customers.country_name
+ GROUP BY d.country, top_5_customers.customer_id
+ ORDER BY top_customer_count DESC;
+           
+         
