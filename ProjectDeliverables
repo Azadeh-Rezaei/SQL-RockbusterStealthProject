@@ -1,0 +1,182 @@
+● Sports, Sci-Fi, and Animation are the most popular genres overall. These are the genres we need to offer more movies in and invest in more. 
+● Movies are rented for an average of about 5 days with an average rental amount of $4.2.
+General business stats:
+
+● 1000    Movies
+● 20      Categories
+● 109     Countries 
+● 599     Customers
+
+Below are the lists of the movies with the most and the least movies. 
+
+
+__Finding each movies total revenue and genre, orderd by the revenue in the descending order:__
+SELECT f.title AS title,
+       c.name AS genre,
+       SUM(p.amount) AS revenue	   
+FROM payment p
+JOIN rental r
+     ON p.rental_id = r.rental_id
+JOIN inventory i
+     ON r.inventory_id = i.inventory_id
+JOIN film f
+     ON i.film_id = f.film_id
+JOIN film_category fc
+     ON f.film_id = fc.film_id
+JOIN category c
+     ON fc.category_id = c.category_id
+GROUP BY title, c.name
+ORDER BY revenue DESC;
+ 
+ __ Top 10 movie results:__
+ title	genre	revenue	
+Telegraph Voyage	Music	215.75	
+Zorro Ark	Comedy	199.72	
+Wife Turn	Documentary	198.73	
+Innocent Usual	Foreign	191.74	
+Hustler Party	Comedy	190.78	
+Saturday Lambs	Sports	190.74	
+Titans Jerk	Sci-Fi	186.73	
+Harry Idaho	Drama	177.73	
+Torque Bound	Drama	169.76	
+Dogma Family	Animation	168.72	
+
+
+
+__Finding the total revenue for each movie genre ordered by the revenue in the descending order:__
+
+SELECT c.name AS genre,
+       SUM(p.amount) AS category_revenue
+FROM payment p
+INNER JOIN rental r
+     ON p.rental_id=r.rental_id
+INNER JOIN inventory i 
+     ON r.inventory_id = i.inventory_id
+INNER JOIN film f
+    ON i.film_id = f.film_id
+INNER JOIN film_category fc
+    ON f.film_id = fc.film_id
+INNER JOIN category c
+    ON fc.category_id = c.category_id
+GROUP BY c.name
+ORDER BY category_revenue DESC;
+
+__Movie genres and total revenue:__
+genre	category_revenue
+Sports	4892.19
+Sci-Fi	4336.01
+Animation	4245.31
+Drama	4118.46
+Comedy	4002.48
+New	3966.38
+Action	3951.84
+Foreign	3934.47
+Games	3922.18
+Family	3782.26
+Documentary	3749.65
+Horror	3401.27
+Classics	3353.38
+Children	3309.39
+Travel	3227.36
+Music	3071.52
+Thriller	47.89
+
+__Average rental rate per each genre:__
+
+SELECT c.name AS genre,
+       AVG(f.rental_duration) AS average_rental_duration
+FROM film f
+INNER JOIN film_category fc
+       ON f.film_id = f.film_id
+INNER JOIN category c
+       ON fc.category_id = c.category_id
+GROUP BY c.name
+ORDER BY average_rental_duration;
+
+__Total average rental rate:__
+SELECT AVG(f.rental_duration) AS average_rental_duration
+FROM film f
+INNER JOIN film_category fc
+       ON f.film_id = f.film_id
+INNER JOIN category c
+       ON fc.category_id = c.category_id;
+       
+       
+__Finding the total customer count and revenue for each country:__
+WITH customer_count AS 
+(SELECT d.country AS country,
+       COUNT(a.customer_id) AS customer_count
+FROM customer a
+JOIN address b
+     ON a.address_id = b.address_id
+JOIN city c
+     ON c.city_id = b.city_id
+JOIN country d
+     ON c.country_id = d.country_id
+GROUP BY d.country)
+SELECT  co.country AS country,
+        cc.customer_count AS customer_count,
+		SUM(p.amount) AS revenue
+FROM payment p
+JOIN rental r 
+	ON p.rental_id = r.rental_id
+JOIN customer c
+	ON r.customer_id = c.customer_id
+JOIN address a
+	ON c.address_id = a.address_id
+JOIN city ci
+	ON a.city_id = ci.city_id
+JOIN country co
+	ON ci.country_id = co.country_id
+JOIN customer_count cc
+	ON cc.country = co.country
+GROUP BY co.country, customer_count
+ORDER BY customer_count DESC;
+
+__Top 10 Results for the total customer count and revenue for each country:__
+country	customer_count	revenue	
+India	60	6032.79	
+China	53	5247.04	
+United States	36	3694.27	
+Japan	31	3121.52	
+Mexico	30	2984.82	
+Brazil	28	2919.19	
+Russian Federation	28	2765.62	
+Philippines	20	2219.7	
+Turkey	15	1498.49	
+Indonesia	14	1352.69	
+
+
+__Finding the Revenue for each genre grouped for each country:__
+WITH customer_country AS (
+SELECT customer.customer_id AS customer_id,
+       country.country AS country
+FROM customer
+JOIN address 
+	ON customer.address_id = address.address_id
+JOIN city
+	ON address.city_id = city.city_id
+JOIN country
+	ON city.country_id = country.country_id
+)
+SELECT customer_country.country AS country,
+       SUM(rental_revenue_category.payment) AS revenue,
+	   rental_revenue_category.genre AS genre
+FROM 
+   (SELECT r.customer_id AS customer_id,
+	   p.amount AS payment,
+	   c.name AS genre
+   FROM payment p
+   JOIN rental r
+	ON p.rental_id = r.rental_id
+   JOIN inventory i
+	ON r.inventory_id = i.inventory_id
+   JOIN film_category fc 
+	ON i.film_id = fc.film_id
+   JOIN category c
+	ON fc.category_id = c.category_id
+   GROUP BY r.customer_id, payment, c.name
+        ) AS rental_revenue_category
+JOIN customer_country
+     ON rental_revenue_category.customer_id = customer_country.customer_id
+GROUP BY country, genre;
