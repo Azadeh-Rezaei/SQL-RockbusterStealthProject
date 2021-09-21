@@ -1,0 +1,61 @@
+__Using CTEs: Find the average amount paid by the top 5 customers__
+WITH top_5_customers AS(
+   SELECT a.customer_id AS customer_id,
+          a.fist_name AS customer_first_name,
+          a.last_name AS customer_last_name, 
+          c.city AS city_name,
+          d.country AS country_name,
+          SUM(p.amount) AS total_payment
+   FROM payment p
+   LEFT JOIN customer a
+        ON p.customer_id = a.customer_id
+   JOIN address b
+        ON a.address_id = b.address_id
+   JOIN city c
+        ON b.city_id = c.city_id
+   JOIN country d
+        ON c.country_id = d.country_id
+   WHERE c.city IN
+        ('Aurora', 'Atlixco', 'Xintai', 'Adoni', 'Dhule', 'Kurashiki', 'Pingxiang', 'Sivas', 'Celaya', 'So Leopoldo')
+   GROUP BY a.customer_id, a.dirst_name, a.last_name, c.city, d.country
+   ORDER BY total_payment DESC
+   LIMMIT 5)
+SELECT AVG(top_5_customers.total_payment) AS average_top5_payment
+FROM top_5_customers;
+
+_Using CTEs: Find out how many of the top 5 customers are based within each country__
+WITH top_5_customers AS(
+   SELECT a.customer_id AS customer_id,
+          a.first_name AS customer_first_name,
+          a.last_name AS customer_last_name,
+          c.city AS city_name, 
+          d.country AS country_name,
+          SUM(p.amount) AS total_payment
+   FROM payment p
+   LEFT JOIN customer a
+          ON p.customer_id = a.customer_id
+   JOIN address b
+          ON a.address_id = b.address_id
+   JOIN city c
+          ON b.city_id = c.city_id
+   JOIN country d
+          ON c.country_id = d.country_id
+   WHERE c.city IN
+          ('Aurora', 'Atlixco', 'Xintai', 'Adoni', 'Dhule', 'Kurashiki', 'Pingxiang', 'Sivas', 'Celaya', 'So Leopoldo')
+   GROUP BY a.customer_id, a.first_name, a.last_name, c.city, d.country
+   ORDER BY total_payment DESC
+   LIMIT 5)
+SELECT d.country AS country_name,
+       COUNT(DISTINCT(a.customer_id)) AS customer_count,
+       COUNT(DISTINCT(top_5_customers.customer_id)) AS top5_customer_count
+FROM customer a
+INNER JOIN address b 
+      ON a.address_id = b.address_id
+INNER JOIN city c 
+      ON b.city_id = c.city_id
+INNER JOIN country b 
+      ON c.country_id = d.country_id
+LEFT JOIN top_5_customers 
+      ON d.country = top_5_customers.country_name
+GROUP BY d.country, top_5_customers.customer_id
+ORDER BY top5_customer_count DESC;
